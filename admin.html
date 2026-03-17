@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — Elegant Electric NYC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #f59e0b;
+            --text: #0f172a;
+            --text-sec: #475569;
+            --text-muted: #94a3b8;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --dark: #0f172a;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
+            --ease: cubic-bezier(0.4,0,0.2,1);
+            --font: 'Poppins', sans-serif;
+        }
+        body { font-family: var(--font); background: var(--surface-alt); color: var(--text); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+        /* ---- LOGIN ---- */
+        .login-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(135deg, var(--dark), #1e293b);
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.4s var(--ease), visibility 0.4s;
+        }
+        .login-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .login-box {
+            background: var(--surface); border-radius: var(--radius); padding: 3rem 2.5rem;
+            width: 100%; max-width: 400px; box-shadow: var(--shadow-lg); text-align: center;
+        }
+        .login-box h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem; color: var(--text); }
+        .login-box p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem; }
+        .login-box .logo-icon { font-size: 2.5rem; color: var(--primary); margin-bottom: 1rem; }
+        .login-input {
+            width: 100%; padding: 0.85rem 1rem; border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm); font-family: var(--font); font-size: 0.92rem;
+            margin-bottom: 1rem; transition: border 0.3s; outline: none;
+        }
+        .login-input:focus { border-color: var(--primary); }
+        .login-btn {
+            width: 100%; padding: 0.85rem; background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: #fff; border: none; border-radius: var(--radius-sm); font-family: var(--font);
+            font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.3); }
+        .login-error { color: var(--danger); font-size: 0.82rem; margin-top: 0.75rem; display: none; font-weight: 500; }
+
+        /* ---- DASHBOARD ---- */
+        .dashboard { display: none; }
+        .dashboard.active { display: block; }
+        .topbar {
+            background: var(--dark); color: #fff; padding: 1rem 2rem;
+            display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100;
+        }
+        .topbar h2 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; }
+        .topbar h2 i { color: var(--accent); }
+        .logout-btn {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+            color: #fff; padding: 0.5rem 1.25rem; border-radius: 9999px; cursor: pointer;
+            font-family: var(--font); font-size: 0.82rem; font-weight: 600; transition: background 0.3s;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,0.15); }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+        /* Tabs */
+        .tabs {
+            display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border);
+            padding-bottom: 0; flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem; background: none; border: none; font-family: var(--font);
+            font-size: 0.9rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+            position: relative; transition: color 0.3s; border-bottom: 2px solid transparent; margin-bottom: -2px;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-btn i { margin-right: 0.4rem; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.3s var(--ease); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); transition: box-shadow 0.3s;
+        }
+        .card:hover { box-shadow: var(--shadow-lg); }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+        }
+        .card-header h3 { font-size: 1.15rem; font-weight: 700; }
+
+        /* Form elements */
+        label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.35rem; }
+        .form-input, .form-textarea {
+            width: 100%; padding: 0.8rem 1rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            font-family: var(--font); font-size: 0.92rem; transition: border 0.3s; outline: none; background: var(--surface);
+        }
+        .form-input:focus, .form-textarea:focus { border-color: var(--primary); }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        /* Buttons */
+        .btn {
+            padding: 0.65rem 1.25rem; border: none; border-radius: var(--radius-sm); font-family: var(--font);
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), #6366f1); color: #fff; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+        .btn-success { background: var(--success); color: #fff; }
+        .btn-success:hover { transform: translateY(-1px); }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-danger:hover { transform: translateY(-1px); }
+        .btn-outline { background: none; border: 1.5px solid var(--border); color: var(--text-sec); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-sm { padding: 0.45rem 0.9rem; font-size: 0.78rem; }
+
+        /* Item list */
+        .item-card {
+            background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 1.25rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between;
+            align-items: flex-start; gap: 1rem; transition: border-color 0.3s;
+        }
+        .item-card:hover { border-color: rgba(37,99,235,0.2); }
+        .item-info { flex: 1; }
+        .item-info h4 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+        .item-info p { font-size: 0.85rem; color: var(--text-sec); line-height: 1.6; }
+        .item-info .item-meta { font-size: 0.78rem; color: var(--primary); font-weight: 500; margin-top: 0.2rem; }
+        .item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+        .item-thumbs { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+        .item-thumb { width: 48px; height: 48px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); }
+        .file-upload-area { border: 2px dashed var(--border); border-radius: var(--radius-sm); padding: 1.25rem; text-align: center; cursor: pointer; transition: border-color 0.3s; margin-top: 0.35rem; }
+        .file-upload-area:hover { border-color: var(--primary); }
+        .file-upload-area i { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+        .file-upload-area p { font-size: 0.82rem; color: var(--text-muted); }
+        .upload-preview { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+        .upload-preview img { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); }
+        .char-counter { font-size: 0.72rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 1rem 1.5rem;
+            background: var(--dark); color: #fff; border-radius: var(--radius-sm);
+            font-size: 0.88rem; font-weight: 600; z-index: 9999; box-shadow: var(--shadow-lg);
+            opacity: 0; transform: translateY(10px); transition: all 0.3s var(--ease); pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+
+        /* Stat bar */
+        .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 1.5rem; text-align: center;
+        }
+        .stat-card .stat-val { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        .stat-card .stat-lbl { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px);
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: var(--surface); border-radius: var(--radius); padding: 2rem;
+            width: 100%; max-width: 520px; box-shadow: var(--shadow-lg); animation: fadeIn 0.3s var(--ease);
+        }
+        .modal h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 1.5rem; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: 1fr; }
+            .topbar { padding: 1rem; }
+            .container { padding: 1.5rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+        <h1>Admin Panel</h1>
+        <p>Elegant Electric NYC — Content Manager</p>
+        <input type="text" class="login-input" id="loginId" placeholder="Admin ID" autofocus>
+        <input type="password" class="login-input" id="loginPass" placeholder="Password">
+        <button class="login-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+        <div class="login-error" id="loginError">Invalid credentials. Please try again.</div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+    <!-- Topbar -->
+    <div class="topbar">
+        <h2><i class="fas fa-bolt"></i> Elegant Electric NYC</h2>
+        <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card">
+                <div class="stat-val" id="statTestimonials">0</div>
+                <div class="stat-lbl">Testimonials</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="statPortfolios">0</div>
+                <div class="stat-lbl">Portfolio Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="statContact">—</div>
+                <div class="stat-lbl">Phone</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="contact"><i class="fas fa-address-book"></i> Contact Info</button>
+            <button class="tab-btn" data-tab="testimonials"><i class="fas fa-quote-left"></i> Testimonials</button>
+            <button class="tab-btn" data-tab="portfolios"><i class="fas fa-briefcase"></i> Portfolios</button>
+        </div>
+
+        <!-- TAB: Contact Info -->
+        <div class="tab-panel active" id="tab-contact">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Contact Information</h3>
+                    <button class="btn btn-primary btn-sm" id="saveContactBtn"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" class="form-input" id="cPhone">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-input" id="cEmail">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" class="form-input" id="cAddress">
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp Number (with country code)</label>
+                        <input type="text" class="form-input" id="cWhatsapp">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Business Hours</label>
+                    <textarea class="form-textarea" id="cHours" rows="2"></textarea>
+                </div>
+                <hr style="border:none; border-top:1px solid var(--border); margin: 1.5rem 0;">
+                <h4 style="font-size:0.92rem; font-weight:700; margin-bottom:1rem;">Social Media Links</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Facebook URL</label>
+                        <input type="url" class="form-input" id="cFacebook">
+                    </div>
+                    <div class="form-group">
+                        <label>Instagram URL</label>
+                        <input type="url" class="form-input" id="cInstagram">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Twitter URL</label>
+                        <input type="url" class="form-input" id="cTwitter">
+                    </div>
+                    <div class="form-group">
+                        <label>LinkedIn URL</label>
+                        <input type="url" class="form-input" id="cLinkedin">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Testimonials -->
+        <div class="tab-panel" id="tab-testimonials">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Testimonials</h3>
+                    <button class="btn btn-primary btn-sm" id="addTestimonialBtn"><i class="fas fa-plus"></i> Add New</button>
+                </div>
+                <div id="testimonialsList"></div>
+            </div>
+        </div>
+
+        <!-- TAB: Portfolios -->
+        <div class="tab-panel" id="tab-portfolios">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Portfolio Projects</h3>
+                    <button class="btn btn-primary btn-sm" id="addPortfolioBtn"><i class="fas fa-plus"></i> Add Project</button>
+                </div>
+                <div id="portfoliosList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+        <h3 id="modalTitle">Add Item</h3>
+        <div id="modalBody"></div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" id="modalCancel">Cancel</button>
+            <button class="btn btn-primary" id="modalSave"><i class="fas fa-check"></i> Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ---- State ----
+let authToken = '';
+let siteData = { contact: {}, testimonials: [], portfolios: [] };
+
+// ---- DOM ----
+const loginOverlay = document.getElementById('loginOverlay');
+const dashboard = document.getElementById('dashboard');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const logoutBtn = document.getElementById('logoutBtn');
+const toast = document.getElementById('toast');
+const modalOverlay = document.getElementById('modalOverlay');
+
+// ---- Helpers ----
+function showToast(msg, type = 'success') {
+    toast.textContent = msg;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function apiHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + authToken
+    };
+}
+
+async function fetchData() {
+    const res = await fetch('/api/data');
+    siteData = await res.json();
+    renderAll();
+}
+
+function renderAll() {
+    // Stats
+    document.getElementById('statTestimonials').textContent = siteData.testimonials.length;
+    document.getElementById('statPortfolios').textContent = siteData.portfolios.length;
+    document.getElementById('statContact').textContent = siteData.contact.phone || '—';
+
+    // Contact
+    document.getElementById('cPhone').value = siteData.contact.phone || '';
+    document.getElementById('cEmail').value = siteData.contact.email || '';
+    document.getElementById('cAddress').value = siteData.contact.address || '';
+    document.getElementById('cWhatsapp').value = siteData.contact.whatsapp || '';
+    document.getElementById('cHours').value = siteData.contact.hours || '';
+    document.getElementById('cFacebook').value = siteData.contact.facebook || '';
+    document.getElementById('cInstagram').value = siteData.contact.instagram || '';
+    document.getElementById('cTwitter').value = siteData.contact.twitter || '';
+    document.getElementById('cLinkedin').value = siteData.contact.linkedin || '';
+
+    // Testimonials
+    const tList = document.getElementById('testimonialsList');
+    tList.innerHTML = siteData.testimonials.map(t => `
+        <div class="item-card">
+            <div class="item-info">
+                <h4>${escHtml(t.author)}</h4>
+                <div class="item-meta">${escHtml(t.role)}</div>
+                <p>"${escHtml(t.text.substring(0, 120))}${t.text.length > 120 ? '...' : ''}"</p>
+            </div>
+            <div class="item-actions">
+                <button class="btn btn-outline btn-sm" onclick="editTestimonial(${t.id})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteTestimonial(${t.id})"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+
+    // Portfolios
+    const pList = document.getElementById('portfoliosList');
+    pList.innerHTML = siteData.portfolios.length === 0 
+        ? '<p style="color:var(--text-muted); font-size:0.88rem; padding: 1rem 0;">No portfolio projects yet. Click "Add Project" to create one.</p>'
+        : siteData.portfolios.map(p => `
+        <div class="item-card">
+            <div class="item-info">
+                <h4><i class="fas fa-map-marker-alt" style="color:var(--primary);margin-right:0.4rem;"></i>${escHtml(p.location)}</h4>
+                <p>${escHtml((p.details || '').substring(0, 80))}${(p.details || '').length > 80 ? '...' : ''}</p>
+                ${(p.images && p.images.length > 0) ? `<div class="item-thumbs">${p.images.map(img => `<img src="${img}" class="item-thumb" alt="">`).join('')}</div>` : '<div class="item-meta">No images</div>'}
+            </div>
+            <div class="item-actions">
+                <button class="btn btn-outline btn-sm" onclick="editPortfolio(${p.id})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deletePortfolio(${p.id})"><i class="fas fa-trash"></i></button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function escHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+}
+
+// ---- LOGIN ----
+loginBtn.addEventListener('click', async () => {
+    const id = document.getElementById('loginId').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, password: pass })
+        });
+        if (res.ok) {
+            authToken = btoa(id + ':' + pass);
+            loginOverlay.classList.add('hidden');
+            dashboard.classList.add('active');
+            fetchData();
+        } else {
+            loginError.style.display = 'block';
+        }
+    } catch (err) {
+        loginError.style.display = 'block';
+    }
+});
+
+// Enter key on login
+document.getElementById('loginPass').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loginBtn.click();
+});
+document.getElementById('loginId').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('loginPass').focus();
+});
+
+// Logout
+logoutBtn.addEventListener('click', () => {
+    authToken = '';
+    dashboard.classList.remove('active');
+    loginOverlay.classList.remove('hidden');
+    document.getElementById('loginId').value = '';
+    document.getElementById('loginPass').value = '';
+    loginError.style.display = 'none';
+});
+
+// ---- TABS ----
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+});
+
+// ---- CONTACT SAVE ----
+document.getElementById('saveContactBtn').addEventListener('click', async () => {
+    const contact = {
+        phone: document.getElementById('cPhone').value,
+        email: document.getElementById('cEmail').value,
+        address: document.getElementById('cAddress').value,
+        whatsapp: document.getElementById('cWhatsapp').value,
+        hours: document.getElementById('cHours').value,
+        facebook: document.getElementById('cFacebook').value,
+        instagram: document.getElementById('cInstagram').value,
+        twitter: document.getElementById('cTwitter').value,
+        linkedin: document.getElementById('cLinkedin').value
+    };
+    try {
+        const res = await fetch('/api/admin/contact', {
+            method: 'PUT', headers: apiHeaders(), body: JSON.stringify(contact)
+        });
+        if (res.ok) {
+            siteData.contact = contact;
+            renderAll();
+            showToast('Contact info saved!');
+        } else {
+            showToast('Failed to save', 'error');
+        }
+    } catch { showToast('Failed to save', 'error'); }
+});
+
+// ---- MODAL HELPERS ----
+function openModal(title, bodyHtml, onSave) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').innerHTML = bodyHtml;
+    modalOverlay.classList.add('show');
+    document.getElementById('modalSave').onclick = onSave;
+}
+
+function closeModal() { modalOverlay.classList.remove('show'); }
+document.getElementById('modalCancel').addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
+
+// ---- TESTIMONIALS ----
+document.getElementById('addTestimonialBtn').addEventListener('click', () => {
+    openModal('Add Testimonial', `
+        <div class="form-group"><label>Author Name</label><input class="form-input" id="mAuthor"></div>
+        <div class="form-group"><label>Role / Title</label><input class="form-input" id="mRole"></div>
+        <div class="form-group"><label>Testimonial Text</label><textarea class="form-textarea" id="mText" rows="4"></textarea></div>
+    `, async () => {
+        const body = { author: document.getElementById('mAuthor').value, role: document.getElementById('mRole').value, text: document.getElementById('mText').value };
+        const res = await fetch('/api/admin/testimonials', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+        if (res.ok) { closeModal(); fetchData(); showToast('Testimonial added!'); }
+        else showToast('Failed', 'error');
+    });
+});
+
+window.editTestimonial = function(id) {
+    const t = siteData.testimonials.find(x => x.id === id);
+    if (!t) return;
+    openModal('Edit Testimonial', `
+        <div class="form-group"><label>Author Name</label><input class="form-input" id="mAuthor" value="${escHtml(t.author)}"></div>
+        <div class="form-group"><label>Role / Title</label><input class="form-input" id="mRole" value="${escHtml(t.role)}"></div>
+        <div class="form-group"><label>Testimonial Text</label><textarea class="form-textarea" id="mText" rows="4">${escHtml(t.text)}</textarea></div>
+    `, async () => {
+        const body = { author: document.getElementById('mAuthor').value, role: document.getElementById('mRole').value, text: document.getElementById('mText').value };
+        const res = await fetch('/api/admin/testimonials/' + id, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
+        if (res.ok) { closeModal(); fetchData(); showToast('Testimonial updated!'); }
+        else showToast('Failed', 'error');
+    });
+};
+
+window.deleteTestimonial = async function(id) {
+    if (!confirm('Delete this testimonial?')) return;
+    const res = await fetch('/api/admin/testimonials/' + id, { method: 'DELETE', headers: apiHeaders() });
+    if (res.ok) { fetchData(); showToast('Testimonial deleted'); }
+    else showToast('Failed', 'error');
+};
+
+// ---- PORTFOLIOS ----
+let pendingImages = [];
+
+function portfolioFormHtml(loc, details, existingImages) {
+    return `
+        <div class="form-group"><label>Site Location</label><input class="form-input" id="mPLocation" placeholder="e.g. Brooklyn, NY" value="${loc}"></div>
+        <div class="form-group">
+            <label>Details (50 words max)</label>
+            <textarea class="form-textarea" id="mPDetails" rows="3" maxlength="350">${details}</textarea>
+            <div class="char-counter" id="mPCounter">0 / 50 words</div>
+        </div>
+        <div class="form-group">
+            <label>Images (max 3)</label>
+            ${existingImages.length > 0 ? `<div class="upload-preview" id="existingImgs" style="margin-bottom:0.5rem">${existingImages.map(img => `<img src="${img}" alt="">`).join('')}</div><p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem">Uploading new images will replace existing ones</p>` : ''}
+            <div class="file-upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click or drag images here (JPEG, PNG, WebP)</p>
+                <input type="file" id="mPImages" accept="image/*" multiple style="display:none" max="3">
+            </div>
+            <div class="upload-preview" id="previewArea"></div>
+        </div>
+    `;
+}
+
+function initPortfolioForm() {
+    pendingImages = [];
+    const area = document.getElementById('uploadArea');
+    const input = document.getElementById('mPImages');
+    const detailsTa = document.getElementById('mPDetails');
+    const counter = document.getElementById('mPCounter');
+
+    // Word counter
+    function updateCounter() {
+        const words = detailsTa.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        counter.textContent = words + ' / 50 words';
+        counter.style.color = words > 50 ? 'var(--danger)' : 'var(--text-muted)';
+    }
+    detailsTa.addEventListener('input', updateCounter);
+    updateCounter();
+
+    area.addEventListener('click', () => input.click());
+    area.addEventListener('dragover', (e) => { e.preventDefault(); area.style.borderColor = 'var(--primary)'; });
+    area.addEventListener('dragleave', () => { area.style.borderColor = ''; });
+    area.addEventListener('drop', (e) => { e.preventDefault(); area.style.borderColor = ''; handleFiles(e.dataTransfer.files); });
+    input.addEventListener('change', () => handleFiles(input.files));
+
+    function handleFiles(files) {
+        const preview = document.getElementById('previewArea');
+        const total = Math.min(files.length, 3);
+        pendingImages = [];
+        preview.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+            pendingImages.push(files[i]);
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(files[i]);
+            preview.appendChild(img);
+        }
+        area.querySelector('p').textContent = total + ' image(s) selected';
+    }
+}
+
+async function uploadImages() {
+    if (pendingImages.length === 0) return [];
+    const fd = new FormData();
+    pendingImages.forEach(f => fd.append('images', f));
+    const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        headers: { 'Authorization': 'Basic ' + authToken },
+        body: fd
+    });
+    const data = await res.json();
+    return data.paths || [];
+}
+
+document.getElementById('addPortfolioBtn').addEventListener('click', () => {
+    openModal('Add Portfolio Project', portfolioFormHtml('', '', []), async () => {
+        const loc = document.getElementById('mPLocation').value;
+        const det = document.getElementById('mPDetails').value;
+        const words = det.trim().split(/\s+/).filter(w => w.length > 0).length;
+        if (words > 50) { showToast('Details must be 50 words or less', 'error'); return; }
+        const imgs = await uploadImages();
+        const body = { location: loc, details: det, images: imgs };
+        const res = await fetch('/api/admin/portfolios', { method: 'POST', headers: apiHeaders(), body: JSON.stringify(body) });
+        if (res.ok) { closeModal(); fetchData(); showToast('Portfolio added!'); }
+        else showToast('Failed', 'error');
+    });
+    setTimeout(initPortfolioForm, 50);
+});
+
+window.editPortfolio = function(id) {
+    const p = siteData.portfolios.find(x => x.id === id);
+    if (!p) return;
+    openModal('Edit Portfolio Project', portfolioFormHtml(escHtml(p.location || ''), escHtml(p.details || ''), p.images || []), async () => {
+        const loc = document.getElementById('mPLocation').value;
+        const det = document.getElementById('mPDetails').value;
+        const words = det.trim().split(/\s+/).filter(w => w.length > 0).length;
+        if (words > 50) { showToast('Details must be 50 words or less', 'error'); return; }
+        let imgs = p.images || [];
+        if (pendingImages.length > 0) imgs = await uploadImages();
+        const body = { location: loc, details: det, images: imgs };
+        const res = await fetch('/api/admin/portfolios/' + id, { method: 'PUT', headers: apiHeaders(), body: JSON.stringify(body) });
+        if (res.ok) { closeModal(); fetchData(); showToast('Portfolio updated!'); }
+        else showToast('Failed', 'error');
+    });
+    setTimeout(initPortfolioForm, 50);
+};
+
+window.deletePortfolio = async function(id) {
+    if (!confirm('Delete this portfolio project?')) return;
+    const res = await fetch('/api/admin/portfolios/' + id, { method: 'DELETE', headers: apiHeaders() });
+    if (res.ok) { fetchData(); showToast('Portfolio deleted'); }
+    else showToast('Failed', 'error');
+};
+</script>
+</body>
+</html>

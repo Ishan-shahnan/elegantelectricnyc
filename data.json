@@ -1,0 +1,77 @@
+{
+  "contact": {
+    "phone": "9294134480",
+    "email": "Office@Elegantelectricnyc.com",
+    "address": "Brooklyn, New York",
+    "hours": "Monday - Friday\n9:00 AM - 5:00 PM",
+    "facebook": "https://www.facebook.com/profile.php?id=100094310128002",
+    "instagram": "https://www.instagram.com/elegantelectricnyc/",
+    "twitter": "",
+    "linkedin": "",
+    "whatsapp": "19294134480"
+  },
+  "testimonials": [
+    {
+      "id": 1,
+      "text": "We hired Elite Electrical for the complete rewiring and electrical upgrade at our home. They helped us start with the design phase and then did a great job for installation. The team guided us through different cost options VS the value we will be getting at the end of the project which was super helpful.",
+      "author": "John Smith",
+      "role": "Homeowner"
+    },
+    {
+      "id": 2,
+      "text": "Elite Electrical and their team did a complete electrical system upgrade for our commercial building. We were on a tight schedule and they did everything they could to get us operational on time. During supply chain issues, this was no easy task but they pulled it off.",
+      "author": "Sarah Johnson",
+      "role": "Business Owner"
+    },
+    {
+      "id": 3,
+      "text": "Excellent electrical contractor who I hired to upgrade my home's electrical system. The project came out better than I could have imagined. Much attention to detail and completed according to timeline. Great communicator and produced a great finished project.",
+      "author": "Michael Brown",
+      "role": "Property Manager"
+    },
+    {
+      "id": 4,
+      "text": "After meeting with multiple electrical contractors to upgrade our historic house, we chose Elite Electrical. Their team of professionals took complete care of the entire project from start to the end and we were very happy with the high quality of their work.",
+      "author": "Emily Davis",
+      "role": "Homeowner"
+    },
+    {
+      "id": 5,
+      "text": "As a contractor, I've worked with Elite Electrical on several projects and found them detail-oriented, client-focused, and easy to work with. Their comprehensive service streamlines the process, and I highly recommend them.",
+      "author": "Robert Wilson",
+      "role": "General Contractor"
+    },
+    {
+      "id": 6,
+      "text": "Elite Electrical provided exceptional service for our emergency electrical needs. They responded quickly, diagnosed the problem accurately, and fixed it efficiently. Their professionalism and expertise are unmatched.",
+      "author": "Lisa Anderson",
+      "role": "Homeowner"
+    }
+  ],
+  "portfolios": [
+    {
+      "id": 1,
+      "location": "Brooklyn, Nyc",
+      "details": "Test",
+      "images": [
+        "/uploads/1773770578466-275281.png"
+      ]
+    },
+    {
+      "id": 2,
+      "location": "Test 2",
+      "details": "sadoih",
+      "images": [
+        "/uploads/1773770617480-106950.jpg"
+      ]
+    },
+    {
+      "id": 3,
+      "location": "test 3",
+      "details": "disuhfisuh",
+      "images": [
+        "/uploads/1773770652409-578812.jpg"
+      ]
+    }
+  ]
+}
